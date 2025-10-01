@@ -8,8 +8,13 @@ import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   integrations: [react()],
-
+  devToolbar: { enabled: false },
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
+    resolve: {
+      alias: {
+        '@': new URL('./src', import.meta.url).pathname
+      }
+    }
   }
 });
