@@ -11,11 +11,11 @@ type FormProps = {
 };
 
 const defaultValues: Props = {
-  locations: ["Casa"],
-  genres: ["Ficción"],
-  moods: ["Intrigante"],
-  years: [2020],
-  popularity: 8.1
+  locations: [""],
+  genres: [""],
+  moods: [""],
+  years: [],
+  popularity: 0.0
 };
 
 export default function FiltersForm({ onSubmit, loading }: FormProps) {
@@ -68,7 +68,7 @@ export default function FiltersForm({ onSubmit, loading }: FormProps) {
       <div className="grid gap-6">
         <div className={errors.locations ? 'field-error-ring rounded-xl p-1 -m-1' : ''}>
           <MultiToggleGroup
-            label="Ambientaciones"
+            label="Ambientes"
             options={locationList}
             values={form.locations}
             onChange={(vals) => { update('locations', vals); if (vals.length) setErrors(e=>({...e,locations:undefined})); }}
@@ -100,7 +100,7 @@ export default function FiltersForm({ onSubmit, loading }: FormProps) {
         </div>
         <div className={errors.years ? 'field-error-ring rounded-xl p-1 -m-1' : ''}>
           <MultiToggleGroup
-            label="Años"
+            label="Años (Décadas)"
             options={yearList}
             values={form.years}
             onChange={(vals) => { update('years', vals); if (vals.length) setErrors(e=>({...e,years:undefined})); }}

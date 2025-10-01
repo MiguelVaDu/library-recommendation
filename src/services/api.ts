@@ -1,8 +1,8 @@
 import type { Props, RecommendationResponse } from "@/types";
-import { fetchMockRecommendations } from "@/testbench/MockServer"; // fallback local
 
 const BASE = import.meta.env.PUBLIC_API_BASE_URL?.replace(/\/$/, "");
-const PATH = "/recommendations"; // tu backend debe exponer esta ruta
+const CONFIG_PATH = (import.meta as any).env?.PUBLIC_API_RECOMMEND_PATH as string | undefined;
+const PATH = CONFIG_PATH || "/recommendations"; // default legacy
 
 function withTimeout<T>(p: Promise<T>, ms = 15000): Promise<T> {
   let t: any;
@@ -13,12 +13,32 @@ function withTimeout<T>(p: Promise<T>, ms = 15000): Promise<T> {
 }
 
 export async function getRecommendations(props: Props): Promise<RecommendationResponse> {
-  // Si no hay BASE definida, usamos directamente el mock para evitar 404 local
+  // Sin backend configurado, error explícito (ya no hay mock)
   if (!BASE) {
-    return fetchMockRecommendations(props);
+    throw new Error("PUBLIC_API_BASE_URL no configurada. Define el backend en .env");
   }
 
   const url = `${BASE}${PATH}`;
+  const isNewApi = PATH === "/recommend" || /\/recommend$/.test(PATH);
+
+  // Formato nuevo esperado por tu backend desplegado (arrays directos sin wrapper 'props')
+  const payload = isNewApi
+    ? {
+        location: props.locations,
+        genre: props.genres,
+        mood: props.moods,
+        year: props.years,
+        popularity: props.popularity
+      }
+    : {
+        props: {
+          ...props,
+          location: props.locations?.[0],
+          genre: props.genres?.[0],
+          mood: props.moods?.[0],
+          year: props.years?.[0]
+        }
+      };
 
   let res: Response;
   try {
@@ -26,30 +46,24 @@ export async function getRecommendations(props: Props): Promise<RecommendationRe
       fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          props: {
-            ...props,
-            location: props.locations?.[0],
-            genre: props.genres?.[0],
-            mood: props.moods?.[0],
-            year: props.years?.[0]
-          }
-        })
+        body: JSON.stringify(payload)
       })
     );
   } catch (e) {
-    // Si la red falla, último recurso: mock
-    return fetchMockRecommendations(props);
+    throw new Error("Error de red al contactar el backend: " + (e as any)?.message);
   }
 
   if (!res.ok) {
-    // Si el backend da 404 u otro error, fallback a mock
-    if (res.status === 404 || res.status === 500) {
-      return fetchMockRecommendations(props);
-    }
     const text = await res.text().catch(() => "");
     throw new Error(`Backend respondió ${res.status}. ${text}`);
   }
 
-  return res.json();
+  const data = await res.json();
+  // Normalización defensiva si la API usa otra clave
+  if (data && !data.results) {
+    if (Array.isArray(data.recommendations)) return { results: data.recommendations };
+    if (Array.isArray(data.data)) return { results: data.data };
+    if (Array.isArray(data.books)) return { results: data.books };
+  }
+  return data;
 }
