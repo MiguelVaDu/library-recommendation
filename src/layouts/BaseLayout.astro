@@ -8,17 +8,24 @@ const { title = "Recomendador de Libros", showHeader = true } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>{title}</title>
+  <link rel="icon" type="image/svg+xml" href="/library.svg" />
+    <!-- Fuentes: Inter (texto) y Poppins (titulares / marca) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
   </head>
   <body>
     {showHeader && (
-      <header class="border-b border-gray-200 dark:border-gray-800 bg-white/60 dark:bg-gray-950/60 backdrop-blur">
+  <header class="border-b border-gray-200 dark:border-gray-800 bg-white/55 dark:bg-gray-900/55 backdrop-blur supports-[backdrop-filter]:bg-white/35 transition-colors">
         <div class="container py-3 flex items-center justify-between">
-          <a href="/" class="flex items-center gap-2">
-            <img src="/LogoLib.png" alt="BookMatch" class="h-7 w-auto" />
-            <span class="font-semibold">BookMatch</span>
-          </a>
-          <nav class="text-sm">
-            <a href="/" class="hover:underline">Inicio</a>
+          <div class="flex items-center gap-4 min-w-0">
+            <a href="/" class="group flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-md pr-1">
+              <img src="/LogoLib.png" alt="BookMark" class="h-9 sm:h-10 md:h-12 w-auto transition-transform duration-300 group-hover:scale-[1.05]" />
+              <span class="site-brand site-brand--solid text-lg sm:text-xl md:text-2xl select-none">BOOKMARK</span>
+            </a>
+          </div>
+          <nav class="flex items-center gap-5 text-sm sm:text-base">
+            <a href="/" class="nav-link">Inicio</a>
           </nav>
         </div>
       </header>
